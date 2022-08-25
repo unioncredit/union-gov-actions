@@ -1,0 +1,20 @@
+{
+  "name": "union-v1-actions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "upload:checkComptrollerBal": "yarn rollup -c && yarn defender-autotask update-code b0fec737-354e-42db-b0f1-2d891482311e ./dist",
+    "upload:pauseComptroller": "yarn rollup -c pauseComptroller.config.js && yarn defender-autotask update-code ced3df14-a092-4bc5-8381-9ad38b56992a ./dist"
+  },
+  "devDependencies": {
+    "@gnosis.pm/safe-core-sdk": "^1.2.0",
+    "@rollup/plugin-commonjs": "^22.0.0-4",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.1.1",
+    "defender-autotask-client": "^1.12.1",
+    "defender-relay-client": "^1.12.1",
+    "ethers": "^5.5.2",
+    "rollup": "^2.61.1"
+  }
+}
