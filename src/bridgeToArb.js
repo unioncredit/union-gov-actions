@@ -13,54 +13,37 @@ const encodeParameters = (types, values) => {
   return abi.encode(types, values);
 };
 
-//rinkeby
-const TREASURY_ADDR = "0xC3FdB85912a2f64FC5eDB0f6c775B33B22317F89";
-const CONNECTOR_ADDR = "0xA5770c37B6824f47ac9480F0bE30E2Da6b8Bc199";
+//mainnet
+const TREASURY_ADDR = "0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9";
+const CONNECTOR_ADDR = "0x307ED81138cA91637E432DbaBaC6E3A42699032a";
 
 exports.handler = async function (payload) {
-  console.log(payload);
-  const content = payload.request.body;
-  const sentinel = content.sentinel;
-  const chainId = sentinel.chainId;
   const { INFURA_ID } = payload.secrets;
-
   const provider = new DefenderRelayProvider(payload);
   const signer = new DefenderRelaySigner(payload, provider, {
     speed: "fast",
   });
 
   let l1Provider, l2Provider;
-  if (chainId == 1) {
-    l1Provider = new providers.JsonRpcProvider(
-      "https://mainnet.infura.io/v3/" + INFURA_ID
-    );
-    l2Provider = new providers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");
-  } else if (chainId == 4) {
-    l1Provider = new providers.JsonRpcProvider(
-      "https://rinkeby.infura.io/v3/" + INFURA_ID
-    );
-    l2Provider = new providers.JsonRpcProvider(
-      "https://rinkeby.arbitrum.io/rpc"
-    );
-  } else {
-    throw new Error("network not support");
-  }
-
+  l1Provider = new providers.JsonRpcProvider(
+    "https://mainnet.infura.io/v3/" + INFURA_ID
+  );
+  l2Provider = new providers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");
   const dripToComptrollerBytes = encodeParameters(
     ["uint256"],
     ["800000000000000000"]
   );
   const dripToComptrollerBytesLength =
     hexDataLength(dripToComptrollerBytes) + 4;
-
   const l1ToL2MessageGasEstimate = new L1ToL2MessageGasEstimator(l2Provider);
+  console.log(`dripToComptrollerBytesLength:${dripToComptrollerBytesLength}`);
   const _submissionPriceWei =
     await l1ToL2MessageGasEstimate.estimateSubmissionFee(
       l1Provider,
       await l1Provider.getGasPrice(),
       dripToComptrollerBytesLength
     );
-
+  console.log(`_submissionPriceWei:${_submissionPriceWei}`);
   const submissionPriceWei = _submissionPriceWei.mul(5);
   const maxGas = 275000;
   const gasPriceBid = await l2Provider.getGasPrice();
@@ -69,23 +52,24 @@ exports.handler = async function (payload) {
   console.log({
     gasPriceBid: gasPriceBid.toString(),
     submissionPriceWei: submissionPriceWei.toString(),
-    callValue: callValue.toString(), //ethers.utils.formatUnits(callValue)
+    callValue: callValue.toString(),
   });
 
   const treasury = new ethers.Contract(TREASURY_ADDR, TREASURY_ABI, signer);
-  await treasury.dirp(CONNECTOR_ADDR);
+  const tx = await treasury.drip(CONNECTOR_ADDR);
+  await tx.wait();
 
   const connector = await ethers.getContract(
     CONNECTOR_ADDR,
     CONNECTOR_ABI,
     signer
   );
-  const tx = await connector.bridge(maxGas, gasPriceBid, submissionPriceWei, {
+  const tx2 = await connector.bridge(maxGas, gasPriceBid, submissionPriceWei, {
     value: callValue,
   });
 
   console.log(
-    `Send Union to Arbitrum succeeded! 🙌 ${(await tx.wait()).transactionHash}`
+    `Send Union to Arbitrum succeeded! 🙌 ${(await tx2.wait()).transactionHash}`
   );
 };
 
