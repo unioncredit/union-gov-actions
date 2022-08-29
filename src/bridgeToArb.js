@@ -16,13 +16,33 @@ const encodeParameters = (types, values) => {
 //mainnet
 const TREASURY_ADDR = "0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9";
 const CONNECTOR_ADDR = "0x307ED81138cA91637E432DbaBaC6E3A42699032a";
+const UNION_ADDRESS = "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C";
 
 exports.handler = async function (payload) {
+  const signer = new DefenderRelaySigner(payload, provider, {
+    speed: "average",
+  });
+
+  // Step 1: Drip Union to ArbConnector
+
+  const treasury = new ethers.Contract(TREASURY_ADDR, TREASURY_ABI, signer);
+  const dripTx = await treasury.drip(CONNECTOR_ADDR);
+  await dripTx.wait();
+
+  const union = new ethers.Contract(UNION_ADDRESS, ERC20_ABI, signer);
+
+  const balanceOfUnion = await union.balanceOf(CONNECTOR_ADDR);
+  console.log(
+    `Connector UNION balance: ${ethers.utils.formatEther(balanceOfUnion)}`
+  );
+
+  // Don't bridge if the balance is too small
+  if (balanceOfUnion.lte(ethers.utils.parseEther("100"))) return;
+
+  // Step 2: Bridge to Arbitrum
+
   const { INFURA_ID } = payload.secrets;
   const provider = new DefenderRelayProvider(payload);
-  const signer = new DefenderRelaySigner(payload, provider, {
-    speed: "fast",
-  });
 
   let l1Provider, l2Provider;
   l1Provider = new providers.JsonRpcProvider(
@@ -55,21 +75,24 @@ exports.handler = async function (payload) {
     callValue: callValue.toString(),
   });
 
-  const treasury = new ethers.Contract(TREASURY_ADDR, TREASURY_ABI, signer);
-  const tx = await treasury.drip(CONNECTOR_ADDR);
-  await tx.wait();
-
   const connector = await ethers.getContract(
     CONNECTOR_ADDR,
     CONNECTOR_ABI,
     signer
   );
-  const tx2 = await connector.bridge(maxGas, gasPriceBid, submissionPriceWei, {
-    value: callValue,
-  });
+  const bridgeTx = await connector.bridge(
+    maxGas,
+    gasPriceBid,
+    submissionPriceWei,
+    {
+      value: callValue,
+    }
+  );
 
   console.log(
-    `Send Union to Arbitrum succeeded! 🙌 ${(await tx2.wait()).transactionHash}`
+    `Send Union to Arbitrum succeeded! 🙌 ${
+      (await bridgeTx.wait()).transactionHash
+    }`
   );
 };
 
@@ -117,6 +140,28 @@ const CONNECTOR_ABI = [
     name: "bridge",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+];
+
+const ERC20_ABI = [
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "balanceOf",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];
