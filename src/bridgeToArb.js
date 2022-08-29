@@ -19,6 +19,8 @@ const CONNECTOR_ADDR = "0x307ED81138cA91637E432DbaBaC6E3A42699032a";
 const UNION_ADDRESS = "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C";
 
 exports.handler = async function (payload) {
+  const { INFURA_ID } = payload.secrets;
+  const provider = new DefenderRelayProvider(payload);
   const signer = new DefenderRelaySigner(payload, provider, {
     speed: "average",
   });
@@ -40,9 +42,6 @@ exports.handler = async function (payload) {
   if (balanceOfUnion.lte(ethers.utils.parseEther("100"))) return;
 
   // Step 2: Bridge to Arbitrum
-
-  const { INFURA_ID } = payload.secrets;
-  const provider = new DefenderRelayProvider(payload);
 
   let l1Provider, l2Provider;
   l1Provider = new providers.JsonRpcProvider(
