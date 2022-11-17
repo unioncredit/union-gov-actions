@@ -6,7 +6,6 @@ const {
 const {
   L1ToL2MessageGasEstimator,
 } = require("@arbitrum/sdk/dist/lib/message/L1ToL2MessageGasEstimator");
-const { hexDataLength } = require("@ethersproject/bytes");
 
 const encodeParameters = (types, values) => {
   const abi = new ethers.utils.AbiCoder();
@@ -53,7 +52,7 @@ exports.handler = async function (payload) {
     ["800000000000000000"]
   );
   const dripToComptrollerBytesLength =
-    hexDataLength(dripToComptrollerBytes) + 4;
+    ethers.utils.hexDataLength(dripToComptrollerBytes) + 4;
   const l1ToL2MessageGasEstimate = new L1ToL2MessageGasEstimator(l2Provider);
   console.log(`dripToComptrollerBytesLength:${dripToComptrollerBytesLength}`);
   const _submissionPriceWei =
@@ -74,11 +73,7 @@ exports.handler = async function (payload) {
     callValue: callValue.toString(),
   });
 
-  const connector = await ethers.getContract(
-    CONNECTOR_ADDR,
-    CONNECTOR_ABI,
-    signer
-  );
+  const connector = new ethers.Contract(CONNECTOR_ADDR, CONNECTOR_ABI, signer);
   const bridgeTx = await connector.bridge(
     maxGas,
     gasPriceBid,
