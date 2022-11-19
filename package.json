@@ -4,9 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "upload:checkComptrollerBal": "yarn rollup -c && yarn defender-autotask update-code b0fec737-354e-42db-b0f1-2d891482311e ./dist",
+    "upload:checkComptrollerBal": "yarn rollup -c && yarn defender-autotask update-code 89f24f0b-e259-4ce5-a4e7-78613e210a22 ./dist",
     "upload:pauseComptroller": "yarn rollup -c pauseComptroller.config.js && yarn defender-autotask update-code ced3df14-a092-4bc5-8381-9ad38b56992a ./dist",
-    "upload:bridgeToArb": "yarn rollup -c bridgeToArb.config.js && yarn defender-autotask update-code 89f24f0b-e259-4ce5-a4e7-78613e210a22 ./dist"
+    "upload:bridgeToArb": "yarn rollup -c bridgeToArb.config.js && yarn defender-autotask update-code e5dd0e0e-3187-4d5b-8396-d05c115d9c66 ./dist"
   },
   "devDependencies": {
     "@gnosis.pm/safe-core-sdk": "^1.2.0",
