@@ -3,11 +3,12 @@ const {
   DefenderRelaySigner,
   DefenderRelayProvider,
 } = require("defender-relay-client/lib/ethers");
+
 const formatUnits = ethers.utils.formatUnits;
 const parseUnits = ethers.utils.parseUnits;
 
-const UNION_ADDRESS = "0x08af898e65493d8212c8981fadf60ff023a91150"; //kovan
-const COMPTROLLER_ADDR = "0x85FD0fA5Cc2f0B3A12C146C5B5A37d9e269b3Ba8";
+const UNION_ADDRESS = "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C";
+const COMPTROLLER_ADDR = "0x216dE4089dCdD7B95BC34BdCe809669C788a9A5d";
 
 // Use "rollup -c" to package and copy to https://defender.openzeppelin.com/#/autotask to run
 exports.handler = async function (payload) {
