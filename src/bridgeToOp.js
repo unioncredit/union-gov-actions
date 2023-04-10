@@ -59,23 +59,7 @@ const TREASURY_ABI = [
 
 const CONNECTOR_ABI = [
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "maxGas",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "gasPriceBid",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "maxSubmissionCost",
-        type: "uint256",
-      },
-    ],
+    inputs: [],
     name: "bridge",
     outputs: [],
     stateMutability: "payable",
