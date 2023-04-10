@@ -5,7 +5,7 @@ const {
 } = require("defender-relay-client/lib/ethers");
 
 const TREASURY_ADDR = "0x8Cf2D155D1b789C72403BAdB33E85664cEF84e6B";
-const CONNECTOR_ADDR = "0xeC2372EA217437585576cCe877d5B345a743700F";
+const CONNECTOR_ADDR = "0xf8e49fAB23884AdFF5499D841010052Ae08Ac8F8";
 const UNION_ADDRESS = "0x23B0483E07196c425d771240E81A9c2f1E113D3A";
 
 exports.handler = async function (payload) {
