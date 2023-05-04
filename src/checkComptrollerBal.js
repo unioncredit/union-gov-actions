@@ -1,22 +1,46 @@
 const { ethers } = require("ethers");
-const {
-  DefenderRelaySigner,
-  DefenderRelayProvider,
-} = require("defender-relay-client/lib/ethers");
 
 const formatUnits = ethers.utils.formatUnits;
 const parseUnits = ethers.utils.parseUnits;
 
-const UNION_ADDRESS = "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C";
-const COMPTROLLER_ADDR = "0x216dE4089dCdD7B95BC34BdCe809669C788a9A5d";
+const CONTRACTS = {
+  // mainnet
+  1: {
+    UNION_TOKEN: "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C",
+    COMPTROLLER: "0x216dE4089dCdD7B95BC34BdCe809669C788a9A5d",
+  },
+  // optimism
+  10: {
+    UNION_TOKEN: "0xB025ee78b54B5348BD638Fe4a6D77Ec2F813f4f9",
+    COMPTROLLER: "0x06a31efa04453C5F9C0A711Cdb96075308C9d6E3",
+  },
+  // arbitrum
+  42161: {
+    UNION_TOKEN: "0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9",
+    COMPTROLLER: "0x641DD6258cb3E948121B10ee51594Dc2A8549fe1",
+  },
+  // optimism goerli
+  420: {
+    UNION_TOKEN: "0xa5DaCCAf7E72Be629fc0F52cD55d500Fd6fa7677",
+    COMPTROLLER: "0x4A89d70e17F9e765077dfF246c84B47c1181c473",
+  },
+};
 
-// Use "rollup -c" to package and copy to https://defender.openzeppelin.com/#/autotask to run
+const RPC_URLS = {
+  // mainnet
+  1: "https://mainnet.infura.io/v3/{INFURA_KEY}",
+  // optimism
+  10: "https://optimism-mainnet.infura.io/v3/{INFURA_KEY}",
+  // arbitrum
+  42161: "https://arb1.arbitrum.io/rpc",
+  // optimism goerli
+  420: "https://goerli.optimism.io",
+};
+
 exports.handler = async function (payload) {
-  //   const { UNION_AUTOTASK_KEY_KOVAN, UNION_AUTOTASK_SECRET_KOVAN } =
-  //     payload.secrets;
-  //   const credentials = payload.credentials;
-
   const matches = [];
+  const { UNION_INFURA_KEY } = payload.secrets;
+
   const conditionRequest = payload.request.body;
   const events = conditionRequest.events;
 
@@ -28,30 +52,42 @@ exports.handler = async function (payload) {
     const [match] = evt.matchReasons;
     // console.log({ match });
 
-    if (sentinel.chainId == 42) {
-      const { from, to, value } = match.params;
-      const provider = new DefenderRelayProvider(payload);
-      const signer = new DefenderRelaySigner(payload, provider, {
-        speed: "fast",
+    const chainId = sentinel.chainId;
+
+    if (!CONTRACTS[chainId] || !RPC_URLS[chainId]) continue;
+
+    console.log({
+      UNION: CONTRACTS[chainId]["UNION_TOKEN"],
+      COMPTROLLER: CONTRACTS[chainId]["COMPTROLLER"],
+    });
+
+    const { _, amount } = match.params;
+    const rpc_url = RPC_URLS[chainId].replace("{INFURA_KEY}", UNION_INFURA_KEY);
+    console.log(rpc_url);
+    const provider = new ethers.providers.JsonRpcProvider(rpc_url);
+
+    const union = new ethers.Contract(
+      CONTRACTS[chainId]["UNION_TOKEN"],
+      ERC20_ABI,
+      provider
+    );
+    const compBal = await union.balanceOf(CONTRACTS[chainId]["COMPTROLLER"]);
+
+    const percent = parseUnits("1").mul(amount).div(compBal.add(amount));
+
+    console.log({ percent: formatUnits(percent) });
+
+    if (percent.gte(parseUnits("0.01"))) {
+      // Only match when the withdrawal amount is greater than 1%
+      matches.push({
+        hash: evt.hash,
+        metadata: {
+          timestamp: parseInt(new Date().getTime() / 1000),
+          comptrollerBal: formatUnits(compBal),
+          claimAmount: formatUnits(amount),
+          dropPercent: formatUnits(percent),
+        },
       });
-      const union = new ethers.Contract(UNION_ADDRESS, ERC20_ABI, signer);
-      const compBal = await union.balanceOf(COMPTROLLER_ADDR);
-
-      const percent = parseUnits("1").mul(value).div(compBal.add(value));
-
-      console.log({ percent: formatUnits(percent) });
-
-      if (percent.gte(parseUnits("0.01"))) {
-        matches.push({
-          hash: evt.hash,
-          metadata: {
-            timestamp: parseInt(new Date().getTime() / 1000),
-            comptrollerBal: formatUnits(compBal),
-            claimAmount: formatUnits(value),
-            dropPercent: formatUnits(percent),
-          },
-        });
-      }
     }
   }
   return { matches };

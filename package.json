@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "upload:checkComptrollerBal": "yarn rollup -c && yarn defender-autotask update-code 89f24f0b-e259-4ce5-a4e7-78613e210a22 ./dist",
+    "upload:checkComptrollerBal": "yarn rollup -c && yarn defender-autotask update-code 94cc65c1-effc-40af-9703-86c28a8359d6 ./dist",
     "upload:pauseComptroller": "yarn rollup -c pauseComptroller.config.js && yarn defender-autotask update-code ced3df14-a092-4bc5-8381-9ad38b56992a ./dist",
     "upload:bridgeToArb": "yarn rollup -c bridgeToArb.config.js && yarn defender-autotask update-code e5dd0e0e-3187-4d5b-8396-d05c115d9c66 ./dist",
     "upload:bridgeToOp": "yarn rollup -c bridgeToOp.config.js && yarn defender-autotask update-code 6ca899fa-0862-4c92-9f87-fb9f722d3158 ./dist",
