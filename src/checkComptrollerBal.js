@@ -63,7 +63,6 @@ exports.handler = async function (payload) {
 
     const { _, amount } = match.params;
     const rpc_url = RPC_URLS[chainId].replace("{INFURA_KEY}", UNION_INFURA_KEY);
-    console.log(rpc_url);
     const provider = new ethers.providers.JsonRpcProvider(rpc_url);
 
     const union = new ethers.Contract(
