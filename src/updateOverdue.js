@@ -4,18 +4,38 @@ const {
   DefenderRelayProvider,
 } = require("defender-relay-client/lib/ethers");
 const { request, gql } = require("graphql-request");
-const uTokenAddress = "0x95b43b1555653C721aE1FA22d8B6fF1348d9eF33"; //op-goerli
-const userManagerAddress = "0x52A2b6BEE1f7Dd4EE48F27C0cAbb9B4A45b2D82d"; //op-goerli
-const URL = "https://api.thegraph.com/subgraphs/name/geraldhost/union-goerli";
+
+const GRAPH_URLS = {
+  1: "https://api.thegraph.com/subgraphs/name/geraldhost/union",
+  5: "https://api.thegraph.com/subgraphs/name/geraldhost/union-goerli",
+  10: "https://api.thegraph.com/subgraphs/name/geraldhost/union-optimism",
+  42: "https://api.thegraph.com/subgraphs/name/geraldhost/union-kovan",
+  420: "https://api.thegraph.com/subgraphs/name/geraldhost/union-v2-goerli",
+  42161: "https://api.thegraph.com/subgraphs/name/geraldhost/union-arbitrum",
+};
+
+const addresses = {
+  10: {
+    uTokenAddress: "0xE478b5e7A423d7CDb224692d0a816CA146A744b2",
+    userManagerAddress: "0x8E195D65b9932185Fcc76dB5144534e0f3597628",
+  },
+};
 
 exports.handler = async function (event) {
   // Initialize defender relayer provider and signer
   const provider = new DefenderRelayProvider(event);
   const signer = new DefenderRelaySigner(event, provider, { speed: "fast" });
 
-  const uToken = new ethers.Contract(uTokenAddress, uTokenABI, signer);
+  const { chainId } = await provider.getNetwork();
+  console.log(`chainId: ${chainId}`);
+
+  const uToken = new ethers.Contract(
+    addresses[chainId].uTokenAddress,
+    uTokenABI,
+    signer
+  );
   const userManager = new ethers.Contract(
-    userManagerAddress,
+    addresses[chainId].userManagerAddress,
     userManagerABI,
     signer
   );
@@ -28,7 +48,7 @@ exports.handler = async function (event) {
     }
   `;
 
-  const borrowerQuery = await request(URL, borrowQuery, {
+  const borrowerQuery = await request(GRAPH_URLS[chainId], borrowQuery, {
     first: 1000,
   });
   const borrowers = borrowerQuery.borrow;
@@ -75,7 +95,7 @@ exports.handler = async function (event) {
         borrower,
       },
     };
-    const res = await request(URL, query, variables);
+    const res = await request(GRAPH_URLS[chainId], query, variables);
     for (let i = 0; i < res.trust.length; i++) {
       const staker = res.trust[i].staker.toLowerCase();
       if (stakers.indexOf(staker) == -1) {
