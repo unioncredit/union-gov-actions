@@ -8,7 +8,8 @@
     "upload:pauseComptroller": "yarn rollup -c pauseComptroller.config.js && yarn defender-autotask update-code ced3df14-a092-4bc5-8381-9ad38b56992a ./dist",
     "upload:bridgeToArb": "yarn rollup -c bridgeToArb.config.js && yarn defender-autotask update-code e5dd0e0e-3187-4d5b-8396-d05c115d9c66 ./dist",
     "upload:bridgeToOp": "yarn rollup -c bridgeToOp.config.js && yarn defender-autotask update-code 6ca899fa-0862-4c92-9f87-fb9f722d3158 ./dist",
-    "upload:updateOverdue": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code 81810db7-ae88-4e1f-9f76-37dcf18df9f3 ./dist"
+    "upload:updateOverdue": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code 81810db7-ae88-4e1f-9f76-37dcf18df9f3 ./dist",
+    "upload:updateOverdueToOp": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code a585d8b5-67fd-48bd-ab56-70dda3c783f5 ./dist"
   },
   "devDependencies": {
     "@gnosis.pm/safe-core-sdk": "^1.2.0",
