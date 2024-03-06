@@ -9,7 +9,8 @@
     "upload:bridgeToArb": "yarn rollup -c bridgeToArb.config.js && yarn defender-autotask update-code e5dd0e0e-3187-4d5b-8396-d05c115d9c66 ./dist",
     "upload:bridgeToOp": "yarn rollup -c bridgeToOp.config.js && yarn defender-autotask update-code 6ca899fa-0862-4c92-9f87-fb9f722d3158 ./dist",
     "upload:updateOverdue": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code 81810db7-ae88-4e1f-9f76-37dcf18df9f3 ./dist",
-    "upload:updateOverdueToOp": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code a585d8b5-67fd-48bd-ab56-70dda3c783f5 ./dist"
+    "upload:updateOverdueToOp": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code a585d8b5-67fd-48bd-ab56-70dda3c783f5 ./dist",
+    "upload:mogo": "yarn rollup -c mogo.config.js && yarn defender-autotask update-code d3493fac-c6d6-4e7d-9760-b7a5677816ae ./dist"
   },
   "devDependencies": {
     "@gnosis.pm/safe-core-sdk": "^1.2.0",
@@ -18,6 +19,7 @@
     "@rollup/plugin-node-resolve": "^13.1.1",
     "@rollup/plugin-terser": "^0.1.0",
     "defender-autotask-client": "^1.12.1",
+    "defender-kvstore-client": "^1.44.0",
     "defender-relay-client": "^1.12.1",
     "ethers": "^5.5.2",
     "rollup": "^2.61.1"
