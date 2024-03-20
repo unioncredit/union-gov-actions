@@ -3,6 +3,7 @@
 ## Defender Monitors
 
 - [Check comptroller balance](src/checkComptrollerBal.js)
+- [Check borrow amount](src/checkBorrowAmount.js)
 
 ## Defender Actions
 
