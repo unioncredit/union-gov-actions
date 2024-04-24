@@ -10,7 +10,8 @@
     "upload:bridgeToOp": "yarn rollup -c bridgeToOp.config.js && yarn defender-autotask update-code 6ca899fa-0862-4c92-9f87-fb9f722d3158 ./dist",
     "upload:updateOverdue": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code 81810db7-ae88-4e1f-9f76-37dcf18df9f3 ./dist",
     "upload:updateOverdueToOp": "yarn rollup -c updateOverdue.config.js && yarn defender-autotask update-code a585d8b5-67fd-48bd-ab56-70dda3c783f5 ./dist",
-    "upload:checkBorrow": "yarn rollup -c checkBorrow.config.js && yarn defender-autotask update-code 5511cb00-7f0e-4ea3-b9df-36fb39f39d02 ./dist"
+    "upload:checkBorrow": "yarn rollup -c checkBorrow.config.js && yarn defender-autotask update-code 5511cb00-7f0e-4ea3-b9df-36fb39f39d02 ./dist",
+    "upload:writeoff": "yarn rollup -c writeoff.config.js && yarn defender-autotask update-code 1ccf9644-56e0-4ba9-8ba1-1699b5ba0597 ./dist"
   },
   "devDependencies": {
     "@gnosis.pm/safe-core-sdk": "^1.2.0",
@@ -24,6 +25,7 @@
     "rollup": "^2.61.1"
   },
   "dependencies": {
-    "@arbitrum/sdk": "^2.0.15"
+    "@arbitrum/sdk": "^2.0.15",
+    "ethereum-multicall": "^2.24.0"
   }
 }
