@@ -1,17 +1,11 @@
 const { ethers } = require("ethers");
-const {
-  DefenderRelaySigner,
-  DefenderRelayProvider,
-} = require("defender-relay-client/lib/ethers");
+const { DefenderRelaySigner, DefenderRelayProvider } = require("defender-relay-client/lib/ethers");
 const { request, gql } = require("graphql-request");
 
 const GRAPH_URLS = {
-  1: "https://api.thegraph.com/subgraphs/name/geraldhost/union",
-  5: "https://api.thegraph.com/subgraphs/name/geraldhost/union-goerli",
-  10: "https://api.thegraph.com/subgraphs/name/geraldhost/union-optimism",
-  42: "https://api.thegraph.com/subgraphs/name/geraldhost/union-kovan",
-  420: "https://api.thegraph.com/subgraphs/name/geraldhost/union-v2-goerli",
-  42161: "https://api.thegraph.com/subgraphs/name/geraldhost/union-arbitrum",
+  1: "https://api.studio.thegraph.com/query/78581/union-v1-mainnet/version/latest",
+  10: "https://api.studio.thegraph.com/query/78581/union-finance/version/latest",
+  42161: "https://api.studio.thegraph.com/query/78581/union-v1-arbitrum/version/latest",
 };
 
 const addresses = {
@@ -29,16 +23,8 @@ exports.handler = async function (event) {
   const { chainId } = await provider.getNetwork();
   console.log(`chainId: ${chainId}`);
 
-  const uToken = new ethers.Contract(
-    addresses[chainId].uTokenAddress,
-    uTokenABI,
-    signer
-  );
-  const userManager = new ethers.Contract(
-    addresses[chainId].userManagerAddress,
-    userManagerABI,
-    signer
-  );
+  const uToken = new ethers.Contract(addresses[chainId].uTokenAddress, uTokenABI, signer);
+  const userManager = new ethers.Contract(addresses[chainId].userManagerAddress, userManagerABI, signer);
 
   const borrowQuery = gql`
     query ($first: Int) {
@@ -76,10 +62,7 @@ exports.handler = async function (event) {
         $trustLinesFilter: TrustLine_filter
         $trustLinesFilter_Vouch: TrustLine_filter
       ) {
-        cancel: vouchCancellations(
-          first: $first
-          where: $vouchCancellationsFilter
-        ) {
+        cancel: vouchCancellations(first: $first, where: $vouchCancellationsFilter) {
           borrower
           staker
         }
