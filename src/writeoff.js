@@ -1,3 +1,5 @@
+"use strict";
+
 const { ethers } = require("ethers");
 const {
   DefenderRelaySigner,
@@ -7,12 +9,8 @@ const { request, gql } = require("graphql-request");
 const Interface = ethers.utils.Interface;
 
 const GRAPH_URLS = {
-  1: "https://api.thegraph.com/subgraphs/name/geraldhost/union",
-  5: "https://api.thegraph.com/subgraphs/name/geraldhost/union-goerli",
-  10: "https://api.thegraph.com/subgraphs/name/geraldhost/union-optimism",
-  42: "https://api.thegraph.com/subgraphs/name/geraldhost/union-kovan",
-  420: "https://api.thegraph.com/subgraphs/name/geraldhost/union-v2-goerli",
-  42161: "https://api.thegraph.com/subgraphs/name/geraldhost/union-arbitrum",
+  1: "https://api.studio.thegraph.com/query/78581/union-v1-mainnet/version/latest",
+  10: "https://api.studio.thegraph.com/query/78581/union-finance/version/latest",
 };
 
 const addresses = {
@@ -59,7 +57,8 @@ exports.handler = async function (event) {
     first: 1000,
   });
   const borrowers = borrowerQuery.borrow;
-  console.log("borrowers length:", borrowers.length);
+  console.log("borrowers length");
+  console.log(borrowers.length);
 
   let debtWriteOffArray = [];
   const promises = Array.from(borrowers).map(async (borrower) => {
@@ -67,7 +66,8 @@ exports.handler = async function (event) {
     const isOverdue = await uToken.checkIsOverdue(account);
     if (isOverdue) {
       let toDebtWriteOff = true;
-      const limitAmount = ethers.BigNumber.from("1000000000000000000"); //1 dai
+      const stakeAmountLimit = ethers.BigNumber.from("1000000000000000000"); //1 dai
+      const borrowAmountLimit = ethers.BigNumber.from("50000000000000000000"); //50 dai
 
       //Publicly writeoffable
       const currTime = Math.floor(new Date().getTime() / 1000);
@@ -82,11 +82,11 @@ exports.handler = async function (event) {
 
       //stake <=1
       const stakeAmount = await userManager.getStakerBalance(account);
-      if (stakeAmount.gt(limitAmount)) toDebtWriteOff = false;
+      if (stakeAmount.gt(stakeAmountLimit)) toDebtWriteOff = false;
 
       //balance owed >=1 dai
       const borrowedAmount = await uToken.borrowBalanceView(account);
-      if (borrowedAmount.lt(limitAmount)) toDebtWriteOff = false;
+      if (borrowedAmount.lt(borrowAmountLimit)) toDebtWriteOff = false;
 
       //vouches received 1
       const voucherCount = await userManager.getVoucherCount(account);
@@ -103,7 +103,8 @@ exports.handler = async function (event) {
     }
   });
   await Promise.all(promises);
-  console.log("debtWriteOffArray length:", debtWriteOffArray.length);
+  console.log("debtWriteOffArray length");
+  console.log(debtWriteOffArray.length);
 
   let contractCallContext = [];
   const iface = new Interface([
