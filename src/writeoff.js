@@ -66,8 +66,10 @@ exports.handler = async function (event) {
     const isOverdue = await uToken.checkIsOverdue(account);
     if (isOverdue) {
       let toDebtWriteOff = true;
-      const stakeAmountLimit = ethers.BigNumber.from("1000000000000000000"); //1 dai
-      const borrowAmountLimit = ethers.BigNumber.from("50000000000000000000"); //50 dai
+      const borrowMinAmountLimit = ethers.BigNumber.from("1000000000000000000"); //1 dai
+      const borrowMaxAmountLimit = ethers.BigNumber.from(
+        "100000000000000000000"
+      ); //100 dai
 
       //Publicly writeoffable
       const currTime = Math.floor(new Date().getTime() / 1000);
@@ -80,17 +82,14 @@ exports.handler = async function (event) {
       if (currTime <= lastRepay + overdueTime + maxOverdueTime)
         toDebtWriteOff = false;
 
-      //stake <=1
-      const stakeAmount = await userManager.getStakerBalance(account);
-      if (stakeAmount.gt(stakeAmountLimit)) toDebtWriteOff = false;
-
-      //balance owed >=1 dai
+      //balance owed >=1 dai and <= 100
       const borrowedAmount = await uToken.borrowBalanceView(account);
-      if (borrowedAmount.lt(borrowAmountLimit)) toDebtWriteOff = false;
-
-      //vouches received 1
-      const voucherCount = await userManager.getVoucherCount(account);
-      if (parseInt(voucherCount.toString()) != 1) toDebtWriteOff = false;
+      if (
+        borrowedAmount.lt(borrowMinAmountLimit) ||
+        borrowedAmount.gt(borrowMaxAmountLimit)
+      ) {
+        toDebtWriteOff = false;
+      }
 
       if (toDebtWriteOff) {
         const result = await userManager.vouchers(account, 0);
