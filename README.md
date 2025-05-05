@@ -10,4 +10,4 @@
 - [Pause comptroller](src/pauseComptroller.js)
 - [Update overdue amount](src/updateOverdue.js)
 - [Bridge to Arbitrum](src/bridgeToArb.js)
-- [Bridge to Optimimsm](src/bridgeToOp.js)
+- [Bridge to Optimism](src/bridgeToOp.js)
